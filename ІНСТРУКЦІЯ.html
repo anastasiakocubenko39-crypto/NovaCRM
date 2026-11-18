@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaCRM — інструкція</title>
+<style>
+  body { margin: 0; background: #FBF8F4; color: #2B1E16; font: 15.5px/1.65 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 40px 22px 80px; }
+  h1 { font-size: 34px; margin: 0 0 6px; color: #6B4226; }
+  h2 { margin: 42px 0 10px; padding-top: 18px; border-top: 2px solid #E7DDD3; color: #6B4226; }
+  h3 { margin: 24px 0 6px; }
+  .lead { color: #6E5D52; font-size: 17px; }
+  code, pre { background: #fff; border: 1px solid #E7DDD3; border-radius: 6px; font-size: 14px; }
+  code { padding: 1px 6px; } pre { padding: 12px 14px; overflow-x: auto; }
+  .warn { background: #FBEAE8; border-left: 4px solid #B3261E; padding: 12px 16px; border-radius: 6px; margin: 14px 0; }
+  .tip { background: #fff; border-left: 4px solid #6B4226; padding: 12px 16px; border-radius: 6px; margin: 14px 0; }
+  ol li, ul li { margin: 6px 0; }
+  nav a { margin-right: 14px; color: #B3261E; }
+  table { border-collapse: collapse; width: 100%; background: #fff; } td, th { border: 1px solid #E7DDD3; padding: 8px 10px; text-align: left; vertical-align: top; }
+</style>
+</head>
+<body><main>
+<h1>NovaCRM — інструкція</h1>
+<p class="lead">Як почати роботу з флешки без інтернету, як встановити на сервер для всієї команди і як налаштувати програму під свою компанію.</p>
+<nav><a href="#usb">Флешка</a><a href="#server">Сервер</a><a href="#daily">Щоденна робота</a><a href="#setup">Налаштування</a><a href="#backup">Копії</a></nav>
+
+<h2 id="usb">1. Робота з флешки (без сервера й інтернету)</h2>
+<ol>
+  <li>Скопіюйте папку <code>NovaCRM</code> на флешку (бажано зашифровану — див. нижче).</li>
+  <li>Відкрийте <code>NovaCRM.html</code> у <b>Chrome</b> або <b>Edge</b> (подвійний клік або перетягніть файл у вікно браузера).</li>
+  <li>Натисніть <b>«Створити нову базу»</b>: вкажіть назву компанії, тип і пароль (від 8 символів). Збережіть файл <code>novacrm-data.json</code> у ту саму папку на флешці.</li>
+  <li>Далі програма сама зберігає зміни в цей файл через 1–2 секунди після кожної дії (індикатор «Збережено» вгорі).</li>
+  <li>Наступного разу: відкрийте <code>NovaCRM.html</code> → «Відкрити …» → пароль.</li>
+</ol>
+<div class="warn"><b>Забутий пароль = дані втрачено.</b> Пароль ніде не зберігається, файл без нього не розшифрувати. Запишіть пароль у надійному місці.</div>
+<div class="tip">Кнопка <b>«Заблокувати»</b> (замок угорі) зберігає зміни і закриває базу. Через 15 хв бездіяльності програма блокується сама (час можна змінити в налаштуваннях).</div>
+<h3>Додатковий захист флешки (рекомендовано)</h3>
+<p>Файл бази вже зашифрований. Щоб захистити ще й саму програму та інші файли, зашифруйте флешку безкоштовною програмою <b>VeraCrypt</b> (veracrypt.fr): Create Volume → Encrypt a non-system partition/drive → флешка → пароль → exFAT. Перед шифруванням скопіюйте все з флешки на комп’ютер — шифрування її стирає.</p>
+
+<h2 id="server">2. Встановлення на сервер (для всієї команди)</h2>
+<p>Потрібен комп’ютер або сервер у мережі компанії (Windows, Linux або macOS) з <b>Node.js 18+</b> (nodejs.org). Додаткові бібліотеки не потрібні.</p>
+<ol>
+  <li>Скопіюйте папку <code>NovaCRM</code> на сервер.</li>
+  <li>Запустіть у цій папці:<pre>node server/server.js</pre></li>
+  <li>У консолі з’явиться логін <code>admin</code> і тимчасовий пароль — увійдіть з браузера за адресою <code>http://IP-сервера:8080</code>.</li>
+  <li>У «Налаштування → Користувачі» додайте працівників із ролями і змініть пароль адміністратора.</li>
+</ol>
+<table>
+  <tr><th>Роль</th><th>Що може</th></tr>
+  <tr><td>Адміністратор</td><td>усе, включно з налаштуваннями, користувачами й імпортом</td></tr>
+  <tr><td>Керівник / менеджер</td><td>створювати, змінювати й видаляти записи в усіх розділах</td></tr>
+  <tr><td>Працівник</td><td>бачить усе; додає й змінює задачі, документи, витрати; рухає склад</td></tr>
+  <tr><td>Лише перегляд</td><td>тільки читання</td></tr>
+</table>
+<h3>Параметри</h3>
+<pre>PORT=8080 DATA_DIR=/var/lib/novacrm node server/server.js</pre>
+<h3>Автозапуск на Linux (systemd)</h3>
+<pre>[Unit]
+Description=NovaCRM
+After=network.target
+[Service]
+WorkingDirectory=/opt/NovaCRM
+Environment=PORT=8080 DATA_DIR=/var/lib/novacrm
+ExecStart=/usr/bin/node server/server.js
+Restart=always
+User=novacrm
+[Install]
+WantedBy=multi-user.target</pre>
+<h3>Docker</h3>
+<pre>docker build -t novacrm .
+docker run -d -p 8080:8080 -v novacrm-data:/data --name novacrm novacrm</pre>
+<div class="warn">Якщо сервер доступний з інтернету, обов’язково ставте його за HTTPS (наприклад, Caddy або nginx із сертифікатом Let’s Encrypt). У локальній мережі офісу достатньо http.</div>
+<h3>Перенесення офлайн-бази на сервер</h3>
+<p>В офлайн-версії: «Налаштування → Експорт для серверної версії». На сервері під адміністратором: «Налаштування → Імпорт офлайн-бази». Файл експорту не зашифрований — після імпорту видаліть його.</p>
+
+<h2 id="daily">3. Щоденна робота</h2>
+<ul>
+  <li><b>Головна</b> — об’єкти в роботі, воронка, борги клієнтів, витрати місяця, задачі і що потребує уваги (прострочені оплати, закінчуються матеріали, ТО техніки).</li>
+  <li><b>Угоди і задачі</b> — дошка: перетягуйте картки між колонками. Коли угода «Виграно», програма запропонує створити об’єкт.</li>
+  <li><b>Об’єкти</b> — етапи робіт, бюджет, фактичні витрати, виставлені й оплачені рахунки, баланс.</li>
+  <li><b>Рахунки й акти</b> — кнопка «Внести оплату», автоматичний статус «Прострочено».</li>
+  <li><b>Склад</b> — «Прихід» (з автоматичним записом у витрати) і «Списати» на об’єкт.</li>
+  <li><b>Пошук</b> угорі (клавіша <code>/</code>) — по всіх розділах, телефонах, адресах.</li>
+  <li><b>Звіти</b> — прибутковість об’єктів, дебіторка, воронка, витрати за статтями, завантаження персоналу, залишки складу, клієнти. «Друк / PDF» і «Excel (CSV)».</li>
+</ul>
+
+<h2 id="setup">4. Налаштування під свою компанію</h2>
+<ul>
+  <li><b>Тип компанії</b>: «Будівельна компанія» (об’єкти, техніка, матеріали) або «Компанія послуг / продажів» (проєкти, товари, без техніки).</li>
+  <li><b>Розділи</b>: вмикайте лише потрібні.</li>
+  <li><b>Назви</b>: перейменуйте будь-який розділ (наприклад, «Об’єкти» → «Замовлення»).</li>
+  <li><b>Кольори</b>: класична тема (білий, коричневий, червоний), графіт, синя, зелена або власні кольори.</li>
+  <li>Значення за замовчуванням для нових баз — у файлі <code>config.js</code>.</li>
+</ul>
+
+<h2 id="backup">5. Резервні копії</h2>
+<ul>
+  <li><b>Флешка:</b> щотижня копіюйте <code>novacrm-data.json</code> в інше місце або натискайте «Налаштування → Резервна копія». Копія теж зашифрована.</li>
+  <li><b>Сервер:</b> програма щодня сама кладе копію в <code>data/backups</code> і зберігає 30 днів. Додатково копіюйте папку <code>data</code> на інший диск.</li>
+</ul>
+</main></body>
+</html>

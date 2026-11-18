@@ -1,0 +1,11 @@
+{
+  "name": "novacrm",
+  "version": "3.0.0",
+  "description": "NovaCRM — універсальна CRM: офлайн з флешки або на сервері компанії",
+  "private": true,
+  "scripts": {
+    "start": "node server/server.js",
+    "build": "python3 tools/build.py"
+  },
+  "engines": { "node": ">=18" }
+}
